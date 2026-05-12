@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="Verbos"/>
+<meta name="theme-color" content="#0B1220"/>
+<title>Verbos 🇪🇸</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%;background:#0B1220;color:#E2E8F0;font-family:Georgia,serif;overflow-x:hidden}
+  #app{min-height:100vh;display:flex;justify-content:center}
+  .container{width:100%;max-width:480px;padding:24px 18px 60px;display:flex;flex-direction:column;gap:14px}
+  .header{text-align:center;padding:16px 0 4px}
+  .flag{font-size:50px}
+  h1{font-size:42px;font-weight:700;color:#F1F5F9;margin:8px 0 4px;letter-spacing:-1px}
+  .subtitle{color:#475569;font-size:15px;line-height:1.6}
+  .stats-row{display:flex;gap:10px}
+  .stat-box{flex:1;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:12px 8px;display:flex;flex-direction:column;align-items:center;gap:2px}
+  .stat-num{font-size:22px;font-weight:700;color:#F1F5F9}
+  .stat-label{font-size:11px;color:#475569;text-transform:uppercase;letter-spacing:1px}
+  .card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:16px 18px}
+  .card-label{color:#64748B;font-size:11px;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px}
+  .tense-filters{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:6px}
+  .tense-btn{padding:7px 13px;border-radius:20px;cursor:pointer;font-size:13px;font-weight:700;font-family:Georgia,serif;transition:all .15s;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03);color:#475569}
+  .tense-btn.active{background:var(--tc)33;color:var(--tc);border-color:var(--tc)}
+  .avail{color:#475569;font-size:12px;margin-top:8px}
+  .size-row{display:flex;gap:12px}
+  .size-btn{flex:1;padding:13px 0;border-radius:10px;cursor:pointer;font-size:16px;font-weight:700;font-family:Georgia,serif;transition:all .15s;background:rgba(255,255,255,.05);color:#94A3B8;border:1px solid rgba(255,255,255,.1)}
+  .size-btn.active{background:#2DD4BF;color:#0B1220;border:2px solid #2DD4BF}
+  .btn-primary{width:100%;padding:16px;background:#2DD4BF;color:#0B1220;border:none;border-radius:14px;font-size:17px;font-weight:700;font-family:Georgia,serif;cursor:pointer}
+  .btn-secondary{width:100%;padding:14px;background:transparent;color:#94A3B8;border:1px solid rgba(255,255,255,.12);border-radius:14px;font-size:16px;font-family:Georgia,serif;cursor:pointer}
+  .badge{font-size:11px;padding:3px 10px;border-radius:20px;font-weight:600;letter-spacing:.3px;display:inline-block}
+  /* CONJ */
+  .back-btn{background:none;border:none;color:#64748B;font-size:22px;cursor:pointer;padding:0}
+  .conj-header{display:flex;align-items:center;gap:12px;padding-top:8px}
+  .conj-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px 12px;margin-bottom:20px}
+  .conj-row{display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid rgba(255,255,255,.05);padding-bottom:5px}
+  .conj-pron{color:#475569;font-size:13px}
+  .conj-form{color:#F1F5F9;font-weight:700;font-size:15px}
+  .irreg-item{background:rgba(255,255,255,.03);border-radius:10px;padding:8px 12px;margin-bottom:6px}
+  .irreg-verb{font-weight:700;font-size:13px}
+  .irreg-forms{color:#64748B;font-size:13px}
+  /* QUIZ */
+  .progress-bar{height:4px;background:rgba(255,255,255,.07);border-radius:99px;overflow:hidden;margin-bottom:4px}
+  .progress-fill{height:100%;background:#2DD4BF;border-radius:99px;transition:width .4s ease}
+  .progress-label{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;font-size:13px;color:#64748B}
+  .sentence-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:22px 18px;min-height:80px}
+  .sentence{font-size:18px;line-height:1.8;color:#F1F5F9}
+  .blank{display:inline-block;min-width:90px;border-bottom:2px solid #2DD4BF;margin:0 4px;color:#2DD4BF;font-style:italic;text-align:center}
+  .filled-ok{display:inline-block;padding:2px 10px;border-radius:6px;margin:0 4px;background:rgba(52,211,153,.2);color:#34D399;font-weight:700;border:1px solid #34D399}
+  .filled-ko{display:inline-block;padding:2px 10px;border-radius:6px;margin:0 4px;background:rgba(239,68,68,.2);color:#F87171;font-weight:700;border:1px solid #F87171}
+  .options{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .opt-btn{padding:14px 8px;border-radius:12px;cursor:pointer;font-size:16px;font-weight:700;font-family:Georgia,serif;transition:all .15s;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);color:#E2E8F0}
+  .opt-btn.selected{background:rgba(45,212,191,.15);border:2px solid #2DD4BF;color:#2DD4BF}
+  .opt-btn.correct{background:rgba(52,211,153,.15);border:2px solid #34D399;color:#34D399}
+  .opt-btn.wrong{background:rgba(239,68,68,.15);border:2px solid #F87171;color:#F87171}
+  .opt-btn.dimmed{color:#334155}
+  .feedback{border-radius:14px;padding:14px 16px}
+  .feedback.ok{background:rgba(52,211,153,.08);border:1px solid #34D39944}
+  .feedback.ko{background:rgba(239,68,68,.08);border:1px solid #F8717144}
+  .feedback-icon{font-weight:700;font-size:15px;margin-bottom:6px}
+  .feedback-icon.ok{color:#34D399}
+  .feedback-icon.ko{color:#F87171}
+  .explanation{color:#94A3B8;font-size:14px;line-height:1.6}
+  /* RESULT */
+  .recap-item{border-top:1px solid rgba(255,255,255,.06);padding-top:12px;margin-top:10px}
+  .recap-sent{color:#64748B;font-size:13px;margin-bottom:6px;line-height:1.5}
+  .recap-answers{display:flex;gap:16px}
+  .hidden{display:none}
+</style>
+</head>
+<body>
+<div id="app"><div class="container" id="root"></div></div>
+<script>
+const EXERCISES = [
+  {id:1,sentence:"Todos los domingos, nosotros ___ en casa de los abuelos.",options:["comemos","comimos","comeremos","comíamos"],answer:"comemos",tense:"Presente",explanation:"Le présent exprime une habitude régulière. 'Todos los domingos' indique une action répétée."},
+  {id:2,sentence:"¿A qué hora ___ tú normalmente por las mañanas?",options:["te despiertas","te despertaste","te despertarás","te despertabas"],answer:"te despiertas",tense:"Presente",explanation:"Le présent décrit une routine quotidienne. 'Normalmente' confirme qu'il s'agit d'une habitude."},
+  {id:3,sentence:"Mi hermana siempre ___ la mesa antes de cenar.",options:["pone","puso","pondrá","ponía"],answer:"pone",tense:"Presente",explanation:"Le présent avec 'siempre' décrit une habitude constante."},
+  {id:4,sentence:"Los niños ___ mucho ruido cuando juegan en el jardín.",options:["hacen","hicieron","harán","hacían"],answer:"hacen",tense:"Presente",explanation:"Le présent décrit ce qui se passe habituellement dans une situation donnée."},
+  {id:5,sentence:"Mi padre siempre ___ el periódico después del desayuno.",options:["lee","leyó","leerá","leía"],answer:"lee",tense:"Presente",explanation:"'Siempre' associé au présent exprime une habitude actuelle et régulière."},
+  {id:6,sentence:"¿Cuántos idiomas ___ tu cuñada?",options:["habla","habló","hablará","hablaba"],answer:"habla",tense:"Presente",explanation:"Le présent décrit une capacité ou caractéristique actuelle d'une personne."},
+  {id:7,sentence:"Nosotros ___ al mercado cada sábado por la mañana.",options:["vamos","fuimos","iremos","íbamos"],answer:"vamos",tense:"Presente",explanation:"'Cada sábado' indique une habitude présente → présent de l'indicatif."},
+  {id:8,sentence:"¿___ tú a tu primo este fin de semana?",options:["ves","viste","verás","veías"],answer:"ves",tense:"Presente",explanation:"Le présent peut exprimer une action proche ou une question sur les plans actuels."},
+  {id:9,sentence:"Mi abuela siempre ___ cuando llega el invierno.",options:["se queja","se quejó","se quejará","se quejaba"],answer:"se queja",tense:"Presente",explanation:"Habitude actuelle répétée → présent de l'indicatif."},
+  {id:10,sentence:"Cada noche, mi madre nos ___ antes de dormir.",options:["abraza","abrazó","abrazará","abrazaba"],answer:"abraza",tense:"Presente",explanation:"Action habituelle dans le présent → présent de l'indicatif."},
+  {id:11,sentence:"Ayer mi abuela nos ___ su receta de paella.",options:["enseñó","enseña","enseñará","enseñaba"],answer:"enseñó",tense:"Pretérito indefinido",explanation:"'Ayer' indique un moment passé précis et terminé → pretérito indefinido."},
+  {id:12,sentence:"El verano pasado ___ a toda la familia en la playa.",options:["reunimos","reuniremos","reunimos","reuníamos"],answer:"reunimos",tense:"Pretérito indefinido",explanation:"'El verano pasado' est un repère temporel précis dans le passé → pretérito indefinido."},
+  {id:13,sentence:"Mis padres se ___ hace treinta años en un baile del pueblo.",options:["conocieron","conocen","conocerán","conocían"],answer:"conocieron",tense:"Pretérito indefinido",explanation:"'Hace treinta años' situe l'action dans un passé précis et révolu → pretérito indefinido."},
+  {id:14,sentence:"El año pasado mi hermano ___ su primer apartamento.",options:["compró","compra","comprará","compraba"],answer:"compró",tense:"Pretérito indefinido",explanation:"'El año pasado' est un marqueur de passé défini → pretérito indefinido."},
+  {id:15,sentence:"¿A qué hora ___ tú anoche de la fiesta?",options:["volviste","vuelves","volverás","volvías"],answer:"volviste",tense:"Pretérito indefinido",explanation:"'Anoche' est un moment passé précis et terminé → pretérito indefinido."},
+  {id:16,sentence:"La semana pasada, los niños ___ un espectáculo para los abuelos.",options:["prepararon","preparan","prepararán","preparaban"],answer:"prepararon",tense:"Pretérito indefinido",explanation:"'La semana pasada' indique un passé clairement délimité → pretérito indefinido."},
+  {id:17,sentence:"Mi tía nos ___ un pastel enorme para mi cumpleaños.",options:["hizo","hace","hará","hacía"],answer:"hizo",tense:"Pretérito indefinido",explanation:"Action passée unique et terminée liée à un événement précis → pretérito indefinido."},
+  {id:18,sentence:"Ayer por la tarde ___ con mi prima durante dos horas.",options:["hablé","hablo","hablaré","hablaba"],answer:"hablé",tense:"Pretérito indefinido",explanation:"'Ayer por la tarde' est un repère temporel précis → pretérito indefinido."},
+  {id:19,sentence:"Anteayer mis vecinos ___ a su primer hijo.",options:["tuvieron","tienen","tendrán","tenían"],answer:"tuvieron",tense:"Pretérito indefinido",explanation:"'Anteayer' est un moment passé précis et terminé → pretérito indefinido."},
+  {id:20,sentence:"Ayer mi cuñado nos ___ la noticia de su embarazo.",options:["dio","da","dará","daba"],answer:"dio",tense:"Pretérito indefinido",explanation:"'Ayer' avec événement unique et terminé → pretérito indefinido."},
+  {id:21,sentence:"Esta mañana ___ un café con mi vecina.",options:["he tomado","tomé","tomaré","tomaba"],answer:"he tomado",tense:"Pretérito perfecto",explanation:"'Esta mañana' est une période qui inclut encore le présent → pretérito perfecto."},
+  {id:22,sentence:"¿___ ya a los nuevos vecinos?",options:["has conocido","conociste","conocerás","conocías"],answer:"has conocido",tense:"Pretérito perfecto",explanation:"'Ya' pour une expérience récente sans repère temporel précis → pretérito perfecto."},
+  {id:23,sentence:"Este año mi familia ___ mucho juntos.",options:["ha viajado","viajó","viajará","viajaba"],answer:"ha viajado",tense:"Pretérito perfecto",explanation:"'Este año' est une période non encore terminée → pretérito perfecto."},
+  {id:24,sentence:"Hoy ___ con todos mis amigos del colegio.",options:["he quedado","quedé","quedaré","quedaba"],answer:"he quedado",tense:"Pretérito perfecto",explanation:"'Hoy' est une période présente → pretérito perfecto."},
+  {id:25,sentence:"¿___ alguna vez a una boda en el extranjero?",options:["has ido","fuiste","irás","ibas"],answer:"has ido",tense:"Pretérito perfecto",explanation:"Question sur l'expérience de vie sans repère temporel précis → pretérito perfecto."},
+  {id:26,sentence:"Esta tarde mi madre nos ___ una noticia increíble.",options:["ha dado","dio","dará","daba"],answer:"ha dado",tense:"Pretérito perfecto",explanation:"'Esta tarde' est une période récente qui se rattache au présent → pretérito perfecto."},
+  {id:27,sentence:"¿___ tú la nueva receta de la abuela?",options:["has probado","probaste","probarás","probabas"],answer:"has probado",tense:"Pretérito perfecto",explanation:"Question sur une expérience sans moment précis → pretérito perfecto."},
+  {id:28,sentence:"Esta semana mis hijos ___ sus regalos de cumpleaños.",options:["han abierto","abrieron","abren","abrirán"],answer:"han abierto",tense:"Pretérito perfecto",explanation:"'Esta semana' est une période récente du jour → pretérito perfecto."},
+  {id:29,sentence:"Hoy mis padres ___ su trigésimo aniversario de boda.",options:["han cumplido","cumplieron","cumplen","cumplirán"],answer:"han cumplido",tense:"Pretérito perfecto",explanation:"'Hoy' relie l'action au présent du jour → pretérito perfecto."},
+  {id:30,sentence:"Esta semana ___ varias recetas nuevas con mi madre.",options:["hemos probado","probamos","probaremos","probábamos"],answer:"hemos probado",tense:"Pretérito perfecto",explanation:"'Esta semana' est une période en cours → pretérito perfecto."},
+  {id:31,sentence:"Cuando era pequeño, mi abuelo nos ___ cuentos cada noche.",options:["contaba","contó","contará","ha contado"],answer:"contaba",tense:"Pretérito imperfecto",explanation:"L'imperfecto décrit une habitude passée répétée dans l'enfance, sans fin précise."},
+  {id:32,sentence:"De niña, mi madre siempre ___ vestidos de colores.",options:["llevaba","llevó","llevará","ha llevado"],answer:"llevaba",tense:"Pretérito imperfecto",explanation:"'De niña' avec 'siempre' indique une habitude passée → imperfecto."},
+  {id:33,sentence:"Antes, toda la familia ___ junta los domingos.",options:["comía","comió","comerá","ha comido"],answer:"comía",tense:"Pretérito imperfecto",explanation:"'Antes' décrit une situation habituelle dans le passé sans moment précis → imperfecto."},
+  {id:34,sentence:"Cuando mis padres ___ jóvenes, vivían en un pueblo pequeño.",options:["eran","fueron","serán","han sido"],answer:"eran",tense:"Pretérito imperfecto",explanation:"L'imperfecto décrit un état ou une caractéristique passée qui durait dans le temps."},
+  {id:35,sentence:"Cuando vivíamos en el pueblo, nosotros ___ al río todos los veranos.",options:["íbamos","fuimos","iremos","hemos ido"],answer:"íbamos",tense:"Pretérito imperfecto",explanation:"Habitude passée répétée décrite avec 'cuando' → imperfecto."},
+  {id:36,sentence:"Antes de jubilarse, mi tío ___ en una empresa multinacional.",options:["trabajaba","trabajó","trabajará","ha trabajado"],answer:"trabajaba",tense:"Pretérito imperfecto",explanation:"'Antes de jubilarse' décrit une situation qui durait dans le passé → imperfecto."},
+  {id:37,sentence:"De niños, mis primos y yo ___ escondite en el jardín de los abuelos.",options:["jugábamos","jugamos","jugaremos","hemos jugado"],answer:"jugábamos",tense:"Pretérito imperfecto",explanation:"Habitude répétée dans l'enfance sans moment précis → imperfecto."},
+  {id:38,sentence:"Antes de tener hijos, mis padres ___ mucho por el mundo.",options:["viajaban","viajaron","viajan","viajarán"],answer:"viajaban",tense:"Pretérito imperfecto",explanation:"'Antes de tener hijos' décrit une habitude passée qui durait → imperfecto."},
+  {id:39,sentence:"De joven, mi abuela ___ muy bien la guitarra.",options:["tocaba","tocó","tocará","ha tocado"],answer:"tocaba",tense:"Pretérito imperfecto",explanation:"Talent ou habitude passée qui durait dans le temps → imperfecto."},
+  {id:40,sentence:"Cuando mi madre era pequeña, su familia ___ sin televisión.",options:["vivía","vivió","vivirá","ha vivido"],answer:"vivía",tense:"Pretérito imperfecto",explanation:"'Cuando era pequeña' décrit une situation passée qui durait → imperfecto."},
+  {id:41,sentence:"El próximo verano, toda la familia ___ a visitar a los primos en México.",options:["irá","fue","va","iba"],answer:"irá",tense:"Futuro",explanation:"'El próximo verano' projette l'action dans le futur → futuro simple."},
+  {id:42,sentence:"El año que viene, mis padres ___ sus bodas de plata.",options:["celebrarán","celebran","celebraron","celebraban"],answer:"celebrarán",tense:"Futuro",explanation:"'El año que viene' situe l'action dans le futur → futuro simple."},
+  {id:43,sentence:"¿Cuándo ___ a conocer a mi nueva pareja?",options:["vendréis","venís","vinisteis","veníais"],answer:"vendréis",tense:"Futuro",explanation:"Question sur une action future → futuro simple."},
+  {id:44,sentence:"El próximo mes, mi hermana ___ su primer trabajo.",options:["empezará","empieza","empezó","empezaba"],answer:"empezará",tense:"Futuro",explanation:"'El próximo mes' est un repère futur → futuro simple."},
+  {id:45,sentence:"Mañana por la mañana ___ a buscar a los niños al colegio.",options:["iré","voy","fui","iba"],answer:"iré",tense:"Futuro",explanation:"'Mañana' indique une action future planifiée → futuro simple."},
+  {id:46,sentence:"Cuando llegues, la cena ya ___ lista.",options:["estará","está","estuvo","estaba"],answer:"estará",tense:"Futuro",explanation:"'Cuando llegues' projette dans le futur → futuro simple pour décrire un état futur."},
+  {id:47,sentence:"La próxima Navidad ___ todos juntos en casa de los abuelos.",options:["estaremos","estamos","estuvimos","estábamos"],answer:"estaremos",tense:"Futuro",explanation:"'La próxima Navidad' situe l'action dans le futur → futuro simple."},
+  {id:48,sentence:"El próximo año mis padres ___ a vivir más cerca de nosotros.",options:["vendrán","vienen","vinieron","venían"],answer:"vendrán",tense:"Futuro",explanation:"'El próximo año' situe l'action dans le futur → futuro simple."},
+  {id:49,sentence:"La próxima semana ___ una cena sorpresa para el cumpleaños de mamá.",options:["organizaremos","organizamos","organizamos","organizábamos"],answer:"organizaremos",tense:"Futuro",explanation:"'La próxima semana' indique un projet futur → futuro simple."},
+  {id:50,sentence:"La próxima Semana Santa ___ toda la familia en casa de los tíos.",options:["estaremos","estamos","estuvimos","estábamos"],answer:"estaremos",tense:"Futuro",explanation:"'La próxima Semana Santa' situe l'action dans le futur → futuro simple."},
+];
+
+const ALL_TENSES = ["Presente","Pretérito indefinido","Pretérito perfecto","Pretérito imperfecto","Futuro"];
+const TENSE_COLORS = {"Presente":"#2DD4BF","Pretérito indefinido":"#F97316","Pretérito perfecto":"#A78BFA","Pretérito imperfecto":"#FB923C","Futuro":"#34D399"};
+const TENSE_INFO = {
+  "Presente":{usage:"Actions habituelles, vérités générales, états actuels.",verb:"hablar",forms:[["yo","hablo"],["tú","hablas"],["él/ella","habla"],["nosotros","hablamos"],["vosotros","habláis"],["ellos","hablan"]],irregular:[["ser","soy/eres/es/somos/sois/son"],["ir","voy/vas/va/vamos/vais/van"],["tener","tengo/tienes/tiene/tenemos/tenéis/tienen"],["hacer","hago/haces/hace/hacemos/hacéis/hacen"]]},
+  "Pretérito indefinido":{usage:"Actions passées précises et terminées avec marqueur (ayer, el año pasado…).",verb:"hablar",forms:[["yo","hablé"],["tú","hablaste"],["él/ella","habló"],["nosotros","hablamos"],["vosotros","hablasteis"],["ellos","hablaron"]],irregular:[["ser/ir","fui/fuiste/fue/fuimos/fuisteis/fueron"],["tener","tuve/tuviste/tuvo/tuvimos/tuvisteis/tuvieron"],["hacer","hice/hiciste/hizo/hicimos/hicisteis/hicieron"],["venir","vine/viniste/vino/vinimos/vinisteis/vinieron"]]},
+  "Pretérito perfecto":{usage:"Actions passées récentes ou liées au présent (hoy, esta semana, ya, alguna vez…).",verb:"hablar",forms:[["yo","he hablado"],["tú","has hablado"],["él/ella","ha hablado"],["nosotros","hemos hablado"],["vosotros","habéis hablado"],["ellos","han hablado"]],irregular:[["hacer → hecho","he hecho / has hecho…"],["ir → ido","he ido / has ido…"],["ver → visto","he visto / has visto…"],["decir → dicho","he dicho / has dicho…"]]},
+  "Pretérito imperfecto":{usage:"Habitudes passées répétées, états ou descriptions dans le passé (antes, de niño, cuando era…).",verb:"hablar",forms:[["yo","hablaba"],["tú","hablabas"],["él/ella","hablaba"],["nosotros","hablábamos"],["vosotros","hablabais"],["ellos","hablaban"]],irregular:[["ser","era/eras/era/éramos/erais/eran"],["ir","iba/ibas/iba/íbamos/ibais/iban"],["ver","veía/veías/veía/veíamos/veíais/veían"]]},
+  "Futuro":{usage:"Actions futures planifiées ou certaines (mañana, el próximo año, cuando seas mayor…).",verb:"hablar",forms:[["yo","hablaré"],["tú","hablarás"],["él/ella","hablará"],["nosotros","hablaremos"],["vosotros","hablaréis"],["ellos","hablarán"]],irregular:[["tener","tendré/tendrás/tendrá…"],["hacer","haré/harás/hará…"],["venir","vendré/vendrás/vendrá…"],["poder","podré/podrás/podrá…"]]},
+};
+
+// STATE
+let state = {
+  screen: "home",
+  activeTenses: new Set(ALL_TENSES),
+  sessionSize: 5,
+  exercises: [],
+  current: 0,
+  selected: null,
+  confirmed: false,
+  answers: [],
+  conjTab: "Presente",
+  stats: {total:0, correct:0},
+};
+
+try { const s = localStorage.getItem("es_stats"); if(s) state.stats = JSON.parse(s); } catch{}
+
+function saveStats() {
+  try { localStorage.setItem("es_stats", JSON.stringify(state.stats)); } catch{}
+}
+
+function shuffle(arr) { return [...arr].sort(()=>Math.random()-.5); }
+
+function startSession() {
+  const pool = EXERCISES.filter(e => state.activeTenses.has(e.tense));
+  state.exercises = shuffle(pool).slice(0, Math.min(state.sessionSize, pool.length));
+  state.current = 0; state.selected = null; state.confirmed = false; state.answers = [];
+  state.screen = "quiz";
+  render();
+}
+
+function render() {
+  const root = document.getElementById("root");
+  root.innerHTML = "";
+  if (state.screen === "home") renderHome(root);
+  else if (state.screen === "conj") renderConj(root);
+  else if (state.screen === "quiz") renderQuiz(root);
+  else if (state.screen === "result") renderResult(root);
+}
+
+// ── HOME ────────────────────────────────────────────────────────────────────
+function renderHome(root) {
+  const available = EXERCISES.filter(e => state.activeTenses.has(e.tense)).length;
+
+  let statsHTML = "";
+  if (state.stats.total > 0) {
+    const pct = Math.round((state.stats.correct/state.stats.total)*100);
+    statsHTML = `<div class="stats-row">
+      <div class="stat-box"><span class="stat-num">${state.stats.total}</span><span class="stat-label">exercices</span></div>
+      <div class="stat-box"><span class="stat-num" style="color:#34D399">${pct}%</span><span class="stat-label">réussite</span></div>
+      <div class="stat-box"><span class="stat-num" style="color:#A78BFA">${state.stats.correct}</span><span class="stat-label">corrects</span></div>
+    </div>`;
+  }
+
+  const tenseBtns = ALL_TENSES.map(t => {
+    const c = TENSE_COLORS[t];
+    const on = state.activeTenses.has(t);
+    return `<button class="tense-btn${on?" active":""}" style="--tc:${c}" data-tense="${t}">${t}</button>`;
+  }).join("");
+
+  const sizeBtns = [5,10].map(n =>
+    `<button class="size-btn${state.sessionSize===n?" active":""}" data-size="${n}">${n} phrases</button>`
+  ).join("");
+
+  root.innerHTML = `
+    <div class="header">
+      <div class="flag">🇪🇸</div>
+      <h1>Verbos</h1>
+      <p class="subtitle">Entraîne-toi aux temps verbaux<br>en contexte familial &amp; social</p>
+    </div>
+    ${statsHTML}
+    <div class="card">
+      <p class="card-label">Temps à travailler</p>
+      <div class="tense-filters">${tenseBtns}</div>
+      <p class="avail">${available} exercice${available>1?"s":""} disponible${available>1?"s":""}</p>
+    </div>
+    <div class="card">
+      <p class="card-label">Taille de session</p>
+      <div class="size-row">${sizeBtns}</div>
+    </div>
+    <button class="btn-primary" id="btnStart">¡ Empezar !</button>
+    <button class="btn-secondary" id="btnConj">📋 Tables de conjugaison</button>
+  `;
+
+  root.querySelectorAll(".tense-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const t = btn.dataset.tense;
+      if (state.activeTenses.has(t)) { if (state.activeTenses.size > 1) state.activeTenses.delete(t); }
+      else state.activeTenses.add(t);
+      render();
+    });
+  });
+  root.querySelectorAll(".size-btn").forEach(btn => {
+    btn.addEventListener("click", () => { state.sessionSize = parseInt(btn.dataset.size); render(); });
+  });
+  document.getElementById("btnStart").addEventListener("click", startSession);
+  document.getElementById("btnConj").addEventListener("click", () => { state.screen="conj"; render(); });
+}
+
+// ── CONJ ────────────────────────────────────────────────────────────────────
+function renderConj(root) {
+  const info = TENSE_INFO[state.conjTab];
+  const c = TENSE_COLORS[state.conjTab];
+
+  const tabBtns = ALL_TENSES.map(t => {
+    const tc = TENSE_COLORS[t];
+    const on = state.conjTab === t;
+    return `<button class="tense-btn${on?" active":""}" style="--tc:${tc}" data-tense="${t}">${t}</button>`;
+  }).join("");
+
+  const formRows = info.forms.map(([p,f]) =>
+    `<div class="conj-row"><span class="conj-pron">${p}</span><span class="conj-form">${f}</span></div>`
+  ).join("");
+
+  const irregItems = info.irregular.map(([v,f]) =>
+    `<div class="irreg-item"><span class="irreg-verb" style="color:${c}">${v} </span><span class="irreg-forms">→ ${f}</span></div>`
+  ).join("");
+
+  root.innerHTML = `
+    <div class="conj-header">
+      <button class="back-btn" id="btnBack">←</button>
+      <h1 style="font-size:26px">Conjugaison</h1>
+    </div>
+    <div class="tense-filters">${tabBtns}</div>
+    <div class="card" style="border-color:${c}44">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+        <span class="badge" style="background:${c}22;color:${c};border:1px solid ${c}44;font-size:13px;padding:4px 12px">${state.conjTab}</span>
+      </div>
+      <p style="color:#94A3B8;font-size:14px;line-height:1.6;margin-bottom:16px">
+        <span style="color:${c};font-weight:700">Quand l'utiliser : </span>${info.usage}
+      </p>
+      <p class="card-label">Terminaisons — ${info.verb}</p>
+      <div class="conj-grid">${formRows}</div>
+      <p class="card-label">Irréguliers clés</p>
+      ${irregItems}
+    </div>
+    <button class="btn-primary" id="btnStartFromConj">¡ Empezar sesión !</button>
+  `;
+
+  root.querySelectorAll(".tense-btn").forEach(btn => {
+    btn.addEventListener("click", () => { state.conjTab = btn.dataset.tense; render(); });
+  });
+  document.getElementById("btnBack").addEventListener("click", () => { state.screen="home"; render(); });
+  document.getElementById("btnStartFromConj").addEventListener("click", startSession);
+}
+
+// ── QUIZ ────────────────────────────────────────────────────────────────────
+function renderQuiz(root) {
+  const ex = state.exercises[state.current];
+  const progress = (state.current / state.exercises.length) * 100;
+  const c = TENSE_COLORS[ex.tense] || "#94A3B8";
+
+  const parts = ex.sentence.split("___");
+  let sentenceHTML;
+  if (!state.confirmed) {
+    const fill = state.selected ? `<span class="blank">${state.selected}</span>` : `<span class="blank">___</span>`;
+    sentenceHTML = parts[0] + fill + parts[1];
+  } else {
+    const ok = state.selected === ex.answer;
+    const fill = `<span class="${ok?"filled-ok":"filled-ko"}">${state.selected}</span>`;
+    sentenceHTML = parts[0] + fill + parts[1];
+  }
+
+  const optBtns = ex.options.map(opt => {
+    let cls = "opt-btn";
+    if (state.confirmed) {
+      if (opt === ex.answer) cls += " correct";
+      else if (opt === state.selected) cls += " wrong";
+      else cls += " dimmed";
+    } else if (opt === state.selected) cls += " selected";
+    return `<button class="${cls}" data-opt="${opt}">${opt}</button>`;
+  }).join("");
+
+  let feedbackHTML = "";
+  if (state.confirmed) {
+    const ok = state.selected === ex.answer;
+    feedbackHTML = `<div class="feedback ${ok?"ok":"ko"}">
+      <div class="feedback-icon ${ok?"ok":"ko"}">${ok ? "✓ Correcto" : "✗ Réponse : "+ex.answer}</div>
+      <p class="explanation">${ex.explanation}</p>
+    </div>`;
+  }
+
+  const actionBtn = !state.confirmed
+    ? `<button class="btn-primary" id="btnValidate" ${!state.selected?"disabled":""} style="opacity:${state.selected?1:.35}">Valider</button>`
+    : `<button class="btn-primary" id="btnNext">${state.current+1>=state.exercises.length?"Voir les résultats →":"Suivant →"}</button>`;
+
+  root.innerHTML = `
+    <div class="progress-bar"><div class="progress-fill" style="width:${progress}%"></div></div>
+    <div class="progress-label">
+      <span>${state.current+1} / ${state.exercises.length}</span>
+      <span class="badge" style="background:${c}22;color:${c};border:1px solid ${c}44">${ex.tense}</span>
+    </div>
+    <div class="sentence-card"><p class="sentence">${sentenceHTML}</p></div>
+    <div class="options">${optBtns}</div>
+    ${feedbackHTML}
+    ${actionBtn}
+  `;
+
+  if (!state.confirmed) {
+    root.querySelectorAll(".opt-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        state.selected = btn.dataset.opt;
+        render();
+      });
+    });
+    const vBtn = document.getElementById("btnValidate");
+    if (vBtn) vBtn.addEventListener("click", () => {
+      if (!state.selected) return;
+      state.confirmed = true;
+      state.answers.push({ex, chosen: state.selected});
+      render();
+    });
+  } else {
+    document.getElementById("btnNext").addEventListener("click", () => {
+      if (state.current + 1 >= state.exercises.length) {
+        const correct = state.answers.filter(a => a.chosen === a.ex.answer).length;
+        state.stats.total += state.answers.length;
+        state.stats.correct += correct;
+        saveStats();
+        state.screen = "result";
+      } else {
+        state.current++;
+        state.selected = null;
+        state.confirmed = false;
+      }
+      render();
+    });
+  }
+}
+
+// ── RESULT ──────────────────────────────────────────────────────────────────
+function renderResult(root) {
+  const correct = state.answers.filter(a => a.chosen === a.ex.answer).length;
+  const pct = Math.round((correct / state.answers.length) * 100);
+  const emoji = pct===100?"🏆":pct>=80?"🎉":pct>=60?"👍":"💪";
+  const msg = pct===100?"Perfecto! 🌟":pct>=80?"Muy bien!":pct>=60?"Bien, sigue así":"¡Ánimo, sigue practicando!";
+  const errors = state.answers.filter(a => a.chosen !== a.ex.answer);
+
+  let errorsHTML = "";
+  if (errors.length > 0) {
+    const items = errors.map(a => `
+      <div class="recap-item">
+        <p class="recap-sent">${a.ex.sentence.replace("___","【"+a.ex.answer+"】")}</p>
+        <div class="recap-answers">
+          <span style="color:#F87171;font-size:13px">✗ ${a.chosen}</span>
+          <span style="color:#34D399;font-size:13px">✓ ${a.ex.answer}</span>
+        </div>
+        <p style="color:#475569;font-size:12px;margin-top:6px;line-height:1.5">${a.ex.explanation}</p>
+      </div>`).join("");
+    errorsHTML = `<div class="card"><p style="color:#F87171;font-weight:700;margin-bottom:12px;font-size:14px">À revoir (${errors.length}) :</p>${items}</div>`;
+  }
+
+  root.innerHTML = `
+    <div class="header">
+      <div class="flag" style="font-size:56px">${emoji}</div>
+      <h1 style="font-size:36px">${correct} / ${state.answers.length}</h1>
+      <p style="color:#2DD4BF;font-size:22px;font-weight:700;margin:4px 0">${pct}%</p>
+      <p style="color:#475569;font-size:14px">${msg}</p>
+    </div>
+    ${errorsHTML}
+    <button class="btn-primary" id="btnReplay">↺ Nouvelle session</button>
+    <button class="btn-secondary" id="btnHome">⌂ Accueil</button>
+  `;
+
+  document.getElementById("btnReplay").addEventListener("click", startSession);
+  document.getElementById("btnHome").addEventListener("click", () => { state.screen="home"; render(); });
+}
+
+render();
+</script>
+</body>
+</html>
